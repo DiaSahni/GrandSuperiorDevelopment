@@ -1,0 +1,8 @@
+type,question,options,answer,audio
+mcq,What is the capital of France?,Paris;London;Berlin;Madrid,Paris,capital_france.mp3
+tf,The sky is green.,true,false,false,sky_green.mp3
+mcq,What is the recommended frequency for an adult to undergo a routine check-up?,Monthly;Every 3 months;Annually;Only when symptomatic,Annually,routine_checkup_frequency.mp3
+mcq,Which of the following is NOT typically included in a routine check-up?,Blood pressure measurement;Complete blood count (CBC);Review of medical history;Vaccination updates,Complete blood count (CBC),routine_checkup_exclusions.mp3
+mcq,What is the first step a doctor should take when a patient reports occasional headaches?,Prescribe pain medication;Order a brain MRI;Take a detailed history and perform a physical exam;Refer to a neurologist,Take a detailed history and perform a physical exam,headache_initial_step.mp3
+mcq,When a patient reports feeling fatigued, which initial test is most commonly ordered?,Thyroid function test;Electrocardiogram (ECG);Chest X-ray;Allergy testing,Thyroid function test,fatigue_initial_test.mp3
+mcq,How should a doctor address a patient’s concerns about increased stress levels during a routine check-up?,Refer to a psychiatrist immediately;Suggest lifestyle modifications and possibly a mental health referral;Prescribe anti-anxiety medication;Ignore unless the patient insists on discussing it,Suggest lifestyle modifications and possibly a mental health referral,stress_management.mp3

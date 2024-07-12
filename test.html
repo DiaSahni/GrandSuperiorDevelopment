@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Application</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        var points=0;
+        document.addEventListener('DOMContentLoaded', function () {
+            const questionContainer = document.getElementById('question-container');
+            const nextButton = document.getElementById('next-button');
+            let questions = [];
+            let currentQuestionIndex = 0;
+
+            fetch('questions.csv')
+                .then(response => response.text())
+                .then(text => {
+                    questions = parseCSV(text);
+                    showQuestion(questions[currentQuestionIndex]);
+                });
+
+            nextButton.addEventListener('click', () => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    showQuestion(questions[currentQuestionIndex]);
+                } else {
+                    questionContainer.innerHTML = '<p>Quiz completed!</p>';
+                    nextButton.style.display = 'none';
+                }
+            });
+
+            function parseCSV(text) {
+                const lines = text.trim().split('\n');
+                const headers = lines[0].split(',');
+                return lines.slice(1).map(line => {
+                    const values = line.split(',');
+                    let options = values[2] ? values[2].split(';') : [];
+                    return {
+                        type: values[0],
+                        question: values[1],
+                        options: options,
+                        answer: values[3],
+                        audio: values[4]
+                    };
+                });
+            }
+
+            function showQuestion(question) {
+                questionContainer.innerHTML = '';
+                const audio = new Audio(`audio/${question.audio}`);
+                audio.play();
+
+                const questionElement = document.createElement('h2');
+                questionElement.textContent = question.question;
+                questionContainer.appendChild(questionElement);
+
+                if (question.type === 'mcq') {
+                    const optionsList = document.createElement('ul');
+                    optionsList.classList.add('options');
+                    question.options.forEach(option => {
+                        const optionElement = document.createElement('li');
+                        optionElement.textContent = option;
+                        optionsList.appendChild(optionElement);
+                        optionElement.addEventListener('click', () => {
+                            if (option === question.answer) {
+                                points = points + 1;
+                                // Set the id points to the value of points
+                                document.getElementById("points").innerHTML = "Points:  "+points
+                                console.log(points)
+                                alert('Correct!');
+                                
+                            } else {
+                                points = points - 1
+                                document.getElementById("points").innerHTML = "Points:  "+points
+                                console.log(points)
+                                alert('Incorrect.');
+                            }
+                        });
+                    });
+                    questionContainer.appendChild(optionsList);
+                } else if (question.type === 'tf') {
+                    const trueButton = document.createElement('button');
+                    const falseButton = document.createElement('button');
+                    trueButton.textContent = 'True';
+                    falseButton.textContent = 'False';
+                    questionContainer.appendChild(trueButton);
+                    questionContainer.appendChild(falseButton);
+
+                    trueButton.addEventListener('click', () => {
+                        if (question.answer === 'true') {
+                            document.getElementById("points").innerHTML = "Points:  "+points
+                            points = points + 1;
+                            console.log(points)
+                            alert('Correct!');
+                        } else {
+                             points = points - 1
+                            document.getElementById("points").innerHTML = "Points:  "+points
+                            console.log(points)
+                            alert('Incorrect.');
+                        }
+                    });
+
+                    falseButton.addEventListener('click', () => {
+                        if (question.answer === 'false') {
+                            points = points + 1;
+                            document.getElementById("points").innerHTML = "Points:  "+points
+                            
+                            console.log(points)
+                            alert('Correct!');
+                        } else {
+                    points = points - 1
+                        
+                        document.getElementById("points").innerHTML = "Points:  "+points
+                         
+                            console.log(points)
+                            
+                            alert('Incorrect.');
+                        }
+                    });
+                }
+            }
+        });
+
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Quiz</h1>
+        <div id="question-container"></div>
+        <button id="next-button">Next</button>
+        <p id="points"></p>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
