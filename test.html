@@ -5,13 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Application</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            padding-top: 60px; /* padding for navbar */
+        }
+        .navbar {
+            overflow: hidden;
+            background-color: #333;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .navbar a {
+            float: left;
+            display: block;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+        }
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+        .container {
+            padding: 20px;
+        }
+    </style>
     <script>
-        var points=0;
+        var points = 0;
+        var currentAudio = null;
+
+        function setCookie(name, value, days) {
+            var expires = "";
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        function getCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        function updatePoints(pointsToAdd) {
+            points += pointsToAdd;
+            document.getElementById("points").innerHTML = "Points: " + points;
+            let allTimePoints = parseInt(getCookie('allTimePoints') || '0');
+            allTimePoints += pointsToAdd;
+            setCookie('allTimePoints', allTimePoints, 365);
+            document.getElementById("all-time-points").innerHTML = "All-Time Points: " + allTimePoints;
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const questionContainer = document.getElementById('question-container');
             const nextButton = document.getElementById('next-button');
+            const audioButton = document.getElementById('audio-button');
             let questions = [];
             let currentQuestionIndex = 0;
+
+            let allTimePoints = parseInt(getCookie('allTimePoints') || '0');
+            document.getElementById("all-time-points").innerHTML = "All-Time Points: " + allTimePoints;
 
             fetch('questions.csv')
                 .then(response => response.text())
@@ -27,6 +92,14 @@
                 } else {
                     questionContainer.innerHTML = '<p>Quiz completed!</p>';
                     nextButton.style.display = 'none';
+                }
+            });
+
+            audioButton.addEventListener('click', () => {
+                if (currentAudio) {
+                    currentAudio.play().catch(error => {
+                        console.error('Audio playback failed:', error);
+                    });
                 }
             });
 
@@ -48,8 +121,7 @@
 
             function showQuestion(question) {
                 questionContainer.innerHTML = '';
-                const audio = new Audio(`audio/${question.audio}`);
-                audio.play();
+                currentAudio = new Audio(`audio/${question.audio}`);
 
                 const questionElement = document.createElement('h2');
                 questionElement.textContent = question.question;
@@ -64,17 +136,14 @@
                         optionsList.appendChild(optionElement);
                         optionElement.addEventListener('click', () => {
                             if (option === question.answer) {
-                                points = points + 1;
-                                // Set the id points to the value of points
-                                document.getElementById("points").innerHTML = "Points:  "+points
-                                console.log(points)
+                                updatePoints(1);
                                 alert('Correct!');
-                                
+                                var audio = new Audio('audio/Yes.mp3');
+                                audio.play();
                             } else {
-                                points = points - 1
-                                document.getElementById("points").innerHTML = "Points:  "+points
-                                console.log(points)
                                 alert('Incorrect.');
+                                var audio = new Audio('audio/No.mp3');
+                                audio.play();
                             }
                         });
                     });
@@ -89,48 +158,46 @@
 
                     trueButton.addEventListener('click', () => {
                         if (question.answer === 'true') {
-                            document.getElementById("points").innerHTML = "Points:  "+points
-                            points = points + 1;
-                            console.log(points)
+                            updatePoints(1);
                             alert('Correct!');
+                            var audio = new Audio('audio/Yes.mp3');
+                            audio.play();
                         } else {
-                             points = points - 1
-                            document.getElementById("points").innerHTML = "Points:  "+points
-                            console.log(points)
                             alert('Incorrect.');
+                            var audio = new Audio('audio/No.mp3');
+                            audio.play();
                         }
                     });
 
                     falseButton.addEventListener('click', () => {
                         if (question.answer === 'false') {
-                            points = points + 1;
-                            document.getElementById("points").innerHTML = "Points:  "+points
-                            
-                            console.log(points)
+                            updatePoints(1);
                             alert('Correct!');
+                            var audio = new Audio('audio/Yes.mp3');
+                            audio.play();
                         } else {
-                    points = points - 1
-                        
-                        document.getElementById("points").innerHTML = "Points:  "+points
-                         
-                            console.log(points)
-                            
                             alert('Incorrect.');
+                            var audio = new Audio('audio/No.mp3');
+                            audio.play();
                         }
                     });
                 }
             }
         });
-
     </script>
 </head>
 <body>
+    <div class="navbar">
+        <a href="index.html">Home</a>
+        <a href="test.html">Quiz</a>
+    </div>
     <div class="container">
         <h1>Quiz</h1>
         <div id="question-container"></div>
         <button id="next-button">Next</button>
-        <p id="points"></p>
+        <button id="audio-button" style="position: fixed; bottom: 10%; left: 50%; transform: translate(-50%, 50%);">Play Audio</button>
+        <p id="points">Points: 0</p>
+        <p id="all-time-points">All-Time Points: 0</p>
     </div>
-    <script src="script.js"></script>
 </body>
 </html>
